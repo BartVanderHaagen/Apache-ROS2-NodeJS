@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Robot Control</title>
+	<style>
+		body {
+			background-color: #f0f0f0;
+			font-family: Arial, sans-serif;
+			text-align: center;
+		}
+
+		.container {
+			background-color: rgb(60, 32, 241);
+			margin: auto;
+			padding: 20px;
+			border-radius: 10px;
+			box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+		}
+
+        .container2 {
+			background-color: rgb(14, 215, 225);
+			margin: auto;
+			padding: 20px;
+			border-radius: 10px;
+			box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+		}
+
+		.button {
+			background-color: #4CAF50;
+			color: white;
+			padding: 10px;
+			border: none;
+			border-radius: 5px;
+			text-align: center;
+			display: inline-block;
+			font-size: 16px;
+			margin: 5px;
+			cursor: pointer;
+			box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+		}
+
+		.button:hover {
+			background-color: #3e8e41;
+		}
+
+		.input-label {
+			font-weight: bold;
+			margin-right: 10px;
+		}
+
+		.input-text {
+			padding: 5px;
+			border-radius: 5px;
+			border: 1px solid #ccc;
+			font-size: 16px;
+			width: 200px;
+			margin-bottom: 10px;
+		}
+
+		.status-indicator {
+			display: inline-block;
+			width: 20px;
+			height: 20px;
+			border-radius: 50%;
+			margin-left: 10px;
+			vertical-align: middle;
+			background-color: red;
+		}
+
+		.topic-list {
+			padding: 10px;
+			border-radius: 5px;
+			border: 1px solid #ccc;
+			font-size: 16px;
+			width: 400px;
+			height: 300px;
+			margin-top: 20px;
+			overflow: auto;
+			text-align: left;
+			display: none;
+		}
+
+        .debug-screen {
+			margin-top: 20px;
+			font-family: monospace;
+			font-size: 14px;
+			height: 200px;
+			overflow-y: scroll;
+			width: 100%;
+			background-color: white;
+			border: 1px solid black;
+			padding: 10px;
+			text-align: left;
+		}
+
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1>Robot Control</h1>
+		<div>
+			<label class="input-label">IP Address:</label>
+			<input class="input-text" type="text" id="ipAddressInput" placeholder="Enter robot IP address...">
+			<label class="input-label">Port:</label>
+			<input class="input-text" type="text" id="portInput" placeholder="Enter port number...">
+			<button class="button" onclick="connect()">Connect</button>
+			<div class="status-indicator" id="statusIndicator"></div>
+		</div>
+		<div>
+			<button class="button" onclick="move('forward')">Forward</button>
+		</div>
+		<div>
+			<button class="button" onclick="move('left')">Left</button>
+            <button class="button" onclick="move('stop')">Stop</button>
+			<button class="button" onclick="move('right')">Right</button>
+        </div>
+        <div>
+            <button class="button" onclick="move('backward')">Backward</button>
+        </div>
+    </div>
+
+</body>
+<body>
+    <div class="container2">
+        <h1>debugger</h1>
+        <label class="debug-screen"> debug </label>
+    </div>
+</body>
+
+<script>
+   let connectionStatus = false;
+let zenohEndpoint;
+let subscription;
+
+function connect() {
+  const port = document.getElementById("port-input").value;
+  zenohEndpoint = ZenohNet.open(`tcp/127.0.0.1:${port}`);
+  logMessage(`Connected to port ${port}`);
+  document.querySelector("#connection-status .not-connected").classList.add("connected");
+  document.querySelector("#connection-status .not-connected").classList.remove("not-connected");
+  connectionStatus = true;
+
+  // Subscribe to a topic
+  subscription = zenohEndpoint.subscribe({
+    query: "/zenoh/bridge/dds/sub",
+    onData: (event) => {
+      const data = event.payload.toString();
+      logMessage(`Received data: ${data}`);
+    },
+  });
+}
+
+function disconnect() {
+  zenohEndpoint.close();
+  logMessage("Disconnected from Zenoh Bridge");
+  document.querySelector("#connection-status .connected").classList.add("not-connected");
+  document.querySelector("#connection-status .connected").classList.remove("connected");
+  connectionStatus = false;
+
+  // Unsubscribe from the topic
+  subscription.unsubscribe();
+}
+
+function logMessage(message) {
+  const debugScreen = document.querySelector(".debug-screen");
+  debugScreen.innerHTML += message + "<br>";
+  debugScreen.scrollTop = debugScreen.scrollHeight;
+}
+
