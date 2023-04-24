@@ -34,4 +34,7 @@ In this file, you can add the HTML code in this repo > to display on your web in
 Test the web interface: To test the web interface, open a web browser on your system and enter the IP address of your Ubuntu machine in the address bar. You should see the web interface that you created 
 
 That's it! You now have a simple web interface running on your Ubuntu system using Apache.
+
+![image](https://user-images.githubusercontent.com/49994138/234118352-71c87ff0-8659-4110-a31a-0c6ea6990f71.png)
+
  
