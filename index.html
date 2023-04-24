@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Web Interface</title>
+    <script type="text/javascript" src="path/to/roslib.js"></script>
+	<style>
+		body {
+			background-color: darkblue;
+		}
+		.container {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			margin: 20px;
+			padding: 20px;
+			border: 1px solid black;
+			background-color: white;
+		}
+		.connection {
+			flex-direction: row;
+		}
+		.joypad {
+			display: grid;
+			grid-template-areas:
+			  ". up ."
+              "left stop right"
+			  " . down .";
+			grid-gap: 10px;
+			justify-content: center;
+			align-items: center;
+		}
+		.up {
+			grid-area: up;
+		}
+		.left {
+			grid-area: left;
+		}
+		.stop {
+			grid-area: stop;
+		}
+		.right {
+			grid-area: right;
+		}
+		.down {
+			grid-area: down;
+		}
+		.stream {
+			width: 25%;
+			height: 300px;
+			background-color: lightblue;
+			border: 1px solid black;
+		}
+		.debug {
+			flex: 1;
+			height: 100px;
+			background-color: lightgray;
+			border: 1px solid black;
+			margin-top: 20px;
+		}
+		h2 {
+			margin-top: 0;
+		}
+	</style>
+</head>
+<body>
+	<div class="container connection">
+		<h2>Connection</h2>
+		<label for="ip">IP Address:</label>
+		<input type="text" id="ip" name="ip">
+		<label for="port">Port:</label>
+		<input type="text" id="port" name="port">
+		<button id="connect">Connect</button>
+	</div>
+	<div class="container joypad">
+		<button class="up">Forward</button>
+		<button class="left">Left</button>
+		<button class="stop">Stop</button>
+		<button class="right">Right</button>
+		<button class="down">Reverse</button>
+	</div>
+	<div class="container" style="display: flex;">
+		<div class="stream">
+			<h2>Stream</h2>
+		</div>
+		<div class="debug">
+			<h2>Debug</h2>
+		</div>
+	</div>
+
+<script type="text/javascript">
+        var ros = new ROSLIB.Ros({
+                url : 'ws://' + window.location.hostname + ':9090'
+        });
+
+        ros.on('connection', function() {
+                console.log('Connected to ROS2.');
+        });
+
+        ros.on('error', function(error) {
+                console.log('Error connecting to ROS2:', error);
+        });
+</script>
+</body>
+</html>
